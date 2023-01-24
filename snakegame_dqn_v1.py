@@ -1,3 +1,4 @@
+import os
 import gymnasium as gym
 from gymnasium import spaces
 import gym_snakegame
@@ -25,15 +26,15 @@ args = {
     'seed': 42,
     'cuda': True,
     'learning_rate' : 0.00025,
-    'buffer_size' : 1000000,
-    'total_timesteps' : 30000000,
+    'buffer_size' : 2000000,
+    'total_timesteps' : 10000000,
     'start_e' : 1, 
-    'end_e' : 0.005, 
+    'end_e' : 0.01, 
     'exploration_fraction' : 0.1,
     'wandb_entity' : None,
     'learning_starts' : 80000,
-    'train_frequency' : 1,
-    'batch_size' : 64,
+    'train_frequency' : 4,
+    'batch_size' : 256,
     'target_network_frequency' : 1000,
     'gamma' : 0.99,
     'capture_video' : False,
@@ -173,8 +174,7 @@ if __name__ == "__main__":
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
                     writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
                     wandb.log({"losses/td_loss": loss, 
-                            "losses/q_values": old_val.mean().item(), 
-                            "charts/SPS": int(global_step / (time.time() - start_time))}, step=global_step)
+                            "losses/q_values": old_val.mean().item()}, step=global_step)
                 # optimize the model 
                 optimizer.zero_grad()
                 loss.backward()
@@ -188,6 +188,9 @@ if __name__ == "__main__":
     env.close()
     writer.close()
     wandb.finish()
+
+    if not os.path.isdir(f"weights/{project_path}"):
+        os.mkdir(f"weights/{project_path}")
 
     torch.save(q_network, f"weights/{project_path}/{run_name}_q_network.pt")
     torch.save(target_network, f"weights/{project_path}/{run_name}_target_network.pt")
