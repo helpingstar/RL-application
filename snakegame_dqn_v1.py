@@ -190,7 +190,7 @@ if __name__ == "__main__":
     wandb.finish()
 
     if not os.path.isdir(f"weights/{project_path}"):
-        os.mkdir(f"weights/{project_path}")
+        os.makedirs(f"weights/{project_path}")
 
     torch.save(q_network, f"weights/{project_path}/{run_name}_q_network.pt")
     torch.save(target_network, f"weights/{project_path}/{run_name}_target_network.pt")
